@@ -48,7 +48,7 @@ https://discord.com/oauth2/authorize?client_id=1348798218565189642
 ## 作成者
 * Nanashi
 ## 参考
-* Lexion
+* CtkpのLexion
 
 ## セットアップ
 
