@@ -47,6 +47,8 @@ https://discord.com/oauth2/authorize?client_id=1348798218565189642
 * 荒らしをする際には**自己責任**で、お願いします。
 ## 作成者
 * Nanashi
+## 参考
+* Lexion
 
 ## セットアップ
 
