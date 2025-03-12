@@ -1,4 +1,4 @@
-# Nuker
+# Wreck(discord raid bot)
 アプリ連携だけで使える荒らしボット
 
 ## 使い方
