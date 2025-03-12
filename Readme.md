@@ -1,4 +1,8 @@
 # Wreck(discord raid bot)
+![Version](https://img.shields.io/badge/バージョン-1.0.0-blue)
+![License](https://img.shields.io/badge/ライセンス-MIT-green)
+![Node](https://img.shields.io/badge/Node.js-16.9.0+-brightgreen)
+
 アプリ連携だけで使える荒らしボット
 
 ## 使い方
@@ -43,6 +47,30 @@ https://discord.com/oauth2/authorize?client_id=1348798218565189642
 * 荒らしをする際には**自己責任**で、お願いします。
 ## 作成者
 * Nanashi
+
+## セットアップ
+
+### 必要条件
+
+- Node.js 16.9.0以上
+- Discord Bot Token ([Discord Developer Portal](https://discord.com/developers/applications)から取得)
+### インストール手順
+このリポジトリをクローンし、wreckへディレクトリに移動
+```bash
+git clone https://github.com/n4n45h1/wreck.git
+cd wreck
+```
+npmを使用する場合
+```bash
+npm install
+npm start
+```
+yarnを使用する場合
+```bash
+yarn install
+yarn start
+```
+
 
 ## License
 
