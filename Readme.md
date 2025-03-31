@@ -4,14 +4,6 @@
 ![Node](https://img.shields.io/badge/Node.js-16.9.0+-brightgreen)
 
 アプリ連携だけで使える荒らしボット
-
-## 使い方
-1. このリンクを開き、「**アプリを追加**」を押し、アプリを追加してください。
-```md
-https://discord.com/oauth2/authorize?client_id=1348798218565189642
-```
-2. 荒らしたいサーバーに行きコマンドを打つことで、実行できます。
-
 ## コマンド一覧
 ```md
 /spam
