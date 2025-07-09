@@ -1,6 +1,9 @@
 const { ActionRowBuilder, ButtonBuilder } = require('discord.js');
 const { sendMessages } = require('../utils/messageUtils');
 
+// Map to track running processes to prevent duplicate button clicks
+const runningProcesses = new Map();
+
 module.exports = {
   name: 'interactionCreate',
   async execute(interaction) {
@@ -93,6 +96,7 @@ module.exports = {
                 break;
               case 'h': mentionType = 'here'; break;
               case 'e': mentionType = 'everyone'; break;
+              case 'r': mentionType = 'random'; break;
               default: mentionType = 'none';
             }
             
@@ -111,25 +115,24 @@ module.exports = {
               mentionValue
             );
             
-            // Disable the button to prevent multiple clicks
-            const disabledButton = ButtonBuilder.from(interaction.message.components[0].components[0]).setDisabled(true);
-            const disabledRow = new ActionRowBuilder().addComponents(disabledButton);
-            
-            // Update the original message with disabled button
-            await interaction.message.edit({
-              content: interaction.message.content,
-              components: [disabledRow]
-            });
           } else {
             throw new Error('Invalid button ID format');
           }
           
         } catch (error) {
           console.error('Error handling button interaction:', error);
-          await interaction.reply({ 
-            content: 'ボタン処理中にエラーが発生しました。',
-            ephemeral: true
-          });
+          
+          // Check if we can still respond to the interaction
+          if (!interaction.replied && !interaction.deferred) {
+            await interaction.reply({ 
+              content: 'ボタン処理中にエラーが発生しました。',
+              ephemeral: true
+            });
+          } else if (interaction.deferred) {
+            await interaction.editReply({ 
+              content: 'ボタン処理中にエラーが発生しました。'
+            });
+          }
         }
       }
     }
