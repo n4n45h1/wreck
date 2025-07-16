@@ -15,8 +15,10 @@
   "author": "n4n45h1",
   "license": "MIT",
   "dependencies": {
+    "axios": "^1.10.0",
     "discord.js": "^14.14.1",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

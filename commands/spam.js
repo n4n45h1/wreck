@@ -20,7 +20,7 @@ module.exports = {
 
     const mentionTypeInput = new TextInputBuilder()
       .setCustomId('mentionType')
-      .setLabel('メンションタイプ (user, here, everyone, random, none)')
+      .setLabel('メンションタイプ (user, here, everyone, none)')
       .setStyle(TextInputStyle.Short)
       .setPlaceholder('none')
       .setRequired(false);
@@ -64,9 +64,6 @@ module.exports = {
       case 'everyone': 
         buttonId += 'e_';
         break;
-      case 'random':
-        buttonId += 'r_';
-        break;
       default:
         buttonId += 'n_'; // none
     }
@@ -86,7 +83,7 @@ module.exports = {
     // Create the button
     const button = new ButtonBuilder()
       .setCustomId(buttonId)
-      .setLabel('送信')
+      .setLabel('開始')
       .setStyle(ButtonStyle.Primary);
 
     const row = new ActionRowBuilder().addComponents(button);
@@ -95,15 +92,12 @@ module.exports = {
     let previewMessage = `**送信準備完了**\n\n**内容**: ${message}\n**メンションタイプ**: ${mentionType}`;
     if (mentionType === 'user' && mentionValue) {
       previewMessage += `\n**メンション対象**: <@${mentionValue}>`;
-    } else if (mentionType === 'random') {
-      previewMessage += `\n**メンション対象**: オンラインユーザーから複数人をランダム選択`;
     }
-    previewMessage += '\n\n以下の「送信」ボタンを連打して高速でメッセージを送信できます。';
-    previewMessage += '\n**連打可能**: 何度でもクリックして大量送信！';
+    previewMessage += '\n\n以下の「開始」ボタンをクリックすると、メッセージの送信が開始されます。';
     
     // Add a note if the message was truncated
     if (truncatedMessage !== message) {
-      previewMessage += '\n\n**警告**: メッセージが長いため、一部のみが送信されます。';
+      previewMessage += '\n\n**注意**: メッセージが長いため、一部のみが送信されます。';
     }
 
     // Reply with the button
