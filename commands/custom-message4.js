@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { getCustomMessage } = require('../utils/messageUtils');
+const { logCommandUsage } = require('../utils/logger');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -8,6 +9,10 @@ module.exports = {
   
   async execute(interaction) {
     const slot = 4;
+    
+    // コマンド使用をログに記録
+    logCommandUsage(interaction, 'custom-message4', { slot: slot });
+    
     const customMessage = getCustomMessage(interaction.client, interaction.user.id, slot);
 
     if (!customMessage) {

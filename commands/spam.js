@@ -1,4 +1,5 @@
 const { SlashCommandBuilder, ModalBuilder, TextInputBuilder, ActionRowBuilder, TextInputStyle, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { logCommandUsage, logError } = require('../utils/logger');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -6,6 +7,9 @@ module.exports = {
     .setDescription('spamを送信する'),
   
   async execute(interaction) {
+    // コマンド使用をログに記録
+    logCommandUsage(interaction, 'spam');
+    
     // Create the modal
     const modal = new ModalBuilder()
       .setCustomId('spamModal')
@@ -48,6 +52,13 @@ module.exports = {
     const message = interaction.fields.getTextInputValue('messageContent');
     const mentionType = interaction.fields.getTextInputValue('mentionType').toLowerCase() || 'none';
     const mentionValue = interaction.fields.getTextInputValue('mentionValue');
+
+    // モーダル送信をログに記録
+    logCommandUsage(interaction, 'spam_modal', {
+      messageContent: message.substring(0, 100) + (message.length > 100 ? '...' : ''),
+      mentionType: mentionType,
+      mentionValue: mentionValue
+    });
 
     // Create button ID with encoded data
     // Format: send_msg_type_[value]_content

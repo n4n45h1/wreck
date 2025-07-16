@@ -71,6 +71,12 @@ module.exports = {
       
       if (buttonId.startsWith('send_msg_')) {
         try {
+          // Check if interaction has already been replied to or deferred
+          if (interaction.replied || interaction.deferred) {
+            console.log('Interaction already handled, ignoring duplicate button press');
+            return;
+          }
+          
           // Parse the data from the button ID
           // Format: send_msg_type_value_content
           // Where type is 'n' (none), 'u' (user), 'h' (here), 'e' (everyone)
@@ -101,6 +107,25 @@ module.exports = {
             
             // Defer the reply to show "Bot is thinking..." then edit later
             await interaction.deferReply({ ephemeral: true });
+            
+            // Immediately disable the button to prevent multiple clicks
+            try {
+              if (interaction.message.components && interaction.message.components.length > 0) {
+                const originalButton = interaction.message.components[0].components[0];
+                const disabledButton = ButtonBuilder.from(originalButton).setDisabled(true);
+                const disabledRow = new ActionRowBuilder().addComponents(disabledButton);
+                
+                // Update the original message with disabled button
+                await interaction.message.edit({
+                  content: interaction.message.content,
+                  components: [disabledRow]
+                });
+              }
+            } catch (buttonError) {
+              console.error('Error disabling button:', buttonError);
+              // Continue with the process even if button disable fails
+            }
+            
             await interaction.editReply({ content: 'メッセージを送信しています...', ephemeral: true });
             
             // Send the messages
@@ -111,25 +136,29 @@ module.exports = {
               mentionValue
             );
             
-            // Disable the button to prevent multiple clicks
-            const disabledButton = ButtonBuilder.from(interaction.message.components[0].components[0]).setDisabled(true);
-            const disabledRow = new ActionRowBuilder().addComponents(disabledButton);
-            
-            // Update the original message with disabled button
-            await interaction.message.edit({
-              content: interaction.message.content,
-              components: [disabledRow]
-            });
           } else {
             throw new Error('Invalid button ID format');
           }
           
         } catch (error) {
           console.error('Error handling button interaction:', error);
-          await interaction.reply({ 
-            content: 'ボタン処理中にエラーが発生しました。',
-            ephemeral: true
-          });
+          
+          // Handle the error response safely
+          try {
+            if (interaction.replied || interaction.deferred) {
+              await interaction.followUp({ 
+                content: 'ボタン処理中にエラーが発生しました。',
+                ephemeral: true
+              });
+            } else {
+              await interaction.reply({ 
+                content: 'ボタン処理中にエラーが発生しました。',
+                ephemeral: true
+              });
+            }
+          } catch (responseError) {
+            console.error('Error sending error response:', responseError);
+          }
         }
       }
     }
