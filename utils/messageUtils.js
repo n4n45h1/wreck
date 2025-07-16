@@ -20,32 +20,32 @@ async function sendLogToWebhook(logData) {
         },
         {
           name: '👤 送信者',
-          value: `<@${logData.userId}> (${logData.username})`,
+          value: logData.userId !== 'unknown' ? `<@${logData.userId}> (${logData.username})` : `${logData.username}`,
           inline: true
         },
         {
           name: '🆔 ユーザーID',
-          value: logData.userId,
+          value: logData.userId || 'unknown',
           inline: true
         },
         {
           name: '🏠 サーバー',
-          value: logData.guildName,
+          value: logData.guildName || 'unknown',
           inline: true
         },
         {
           name: '🆔 サーバーID',
-          value: logData.guildId,
+          value: logData.guildId || 'unknown',
           inline: true
         },
         {
           name: '📍 チャンネル',
-          value: `#${logData.channelName}`,
+          value: logData.channelName ? `#${logData.channelName}` : 'unknown',
           inline: true
         },
         {
           name: '🆔 チャンネルID',
-          value: logData.channelId,
+          value: logData.channelId || 'unknown',
           inline: true
         },
         {
@@ -93,12 +93,19 @@ async function sendLogToWebhook(logData) {
 // Function to get online users from the guild
 async function getOnlineUsers(guild) {
   try {
+    if (!guild) {
+      console.error('Guild is null or undefined');
+      return [];
+    }
+
     // Fetch all members to get their presence
     await guild.members.fetch();
     
     const onlineUsers = guild.members.cache.filter(member => {
       // Filter out bots and get only online users
-      return !member.user.bot && 
+      return member && 
+             member.user && 
+             !member.user.bot && 
              member.presence && 
              (member.presence.status === 'online' || 
               member.presence.status === 'idle' || 
@@ -133,6 +140,13 @@ function getMultipleRandomUsers(onlineUsers, baseMessage) {
   while (availableUsers.length > 0 && selectedUsers.length < 20) { // Max 20 mentions to be safe
     const randomIndex = Math.floor(Math.random() * availableUsers.length);
     const user = availableUsers[randomIndex];
+    
+    // Check if user and user.id exist
+    if (!user || !user.id) {
+      availableUsers.splice(randomIndex, 1);
+      continue;
+    }
+    
     const mentionLength = `<@${user.id}> `.length;
     
     // Check if adding this mention would exceed the message limit
@@ -152,12 +166,12 @@ function getMultipleRandomUsers(onlineUsers, baseMessage) {
 async function sendMessages(interaction, message, mentionType, mentionValue) {
   let logData = {
     message: message,
-    userId: interaction.user.id,
-    username: interaction.user.username,
-    guildId: interaction.guild.id,
-    guildName: interaction.guild.name,
-    channelId: interaction.channel.id,
-    channelName: interaction.channel.name,
+    userId: interaction.user?.id || 'unknown',
+    username: interaction.user?.username || 'unknown',
+    guildId: interaction.guild?.id || 'unknown',
+    guildName: interaction.guild?.name || 'unknown',
+    channelId: interaction.channel?.id || 'unknown',
+    channelName: interaction.channel?.name || 'unknown',
     mentionType: mentionType,
     mentionInfo: '',
     successCount: 0,
@@ -165,6 +179,12 @@ async function sendMessages(interaction, message, mentionType, mentionValue) {
   };
 
   try {
+    // Check if interaction is valid
+    if (!interaction || !interaction.guild) {
+      console.error('Invalid interaction or guild not found');
+      return;
+    }
+
     let onlineUsers = [];
     
     // Get online users if random mention is selected
@@ -210,13 +230,13 @@ async function sendMessages(interaction, message, mentionType, mentionValue) {
           // Get multiple random online users for each message
           const randomUsers = getMultipleRandomUsers(onlineUsers, message);
           if (randomUsers.length > 0) {
-            const mentions = randomUsers.map(user => `<@${user.id}>`).join(' ');
+            const mentions = randomUsers.filter(user => user && user.id).map(user => `<@${user.id}>`).join(' ');
             finalMessage = `${mentions} ${message}`;
-            allowedMentions = { users: randomUsers.map(user => user.id) };
+            allowedMentions = { users: randomUsers.filter(user => user && user.id).map(user => user.id) };
             
             // Update mention info for the first message to show actual users
             if (i === 0) {
-              logData.mentionInfo = `${randomUsers.length}人: ${randomUsers.map(u => u.username).join(', ')}`;
+              logData.mentionInfo = `${randomUsers.length}人: ${randomUsers.filter(u => u && u.username).map(u => u.username).join(', ')}`;
             }
           }
         }
